@@ -31,19 +31,25 @@ taee3 = taee3.rename(columns={'index': 'data'})
 
 
 
-bbas3['retorno'] = bbas3['adjclose'].pct_change().apply(lambda x: np.log(1+x)).dropna()
 itsa4['retorno'] = itsa4['adjclose'].pct_change().apply(lambda x: np.log(1+x)).dropna()
 
-acoes = bbas3["adjclose"]
+
 
 dfs_secundarios = [itsa4, tasa4, taee3]
 df_names = ['itsa4', 'tasa4', 'taee3']
 
 for df, df_name in zip(dfs_secundarios, df_names):
     df = df.reset_index()
-    df = df.rename(columns={'adjclose': f'{df_name}_adjclose'})
-    bbas3 = bbas3.merge(df[['data', f'{df_name}_adjclose']], on='data', how='left')
-    
-    
+    df = df.rename(columns={'close': f'{df_name}_close'})
+    bbas3 = bbas3.merge(df[['data', f'{df_name}_close']], on='data', how='left')
+
+df_ticker = bbas3.drop(['open','adjclose', 'high', 'low','volume', 'ticker'], axis = 1)
+df_tickers = df_ticker.rename(columns={"close":"bbas3_close"})
+df_tickers = df_tickers.set_index('data')
+
+df_returns = df_tickers.pct_change().apply(lambda x: np.log(1+x)).dropna()
+media_retornos = df_returns.mean()
+matriz_cov = df_returns.cov()
+
 
 
